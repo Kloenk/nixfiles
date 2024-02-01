@@ -144,7 +144,6 @@
         #(final: prev: { nix = nix.packages.${system}.nix; })
         #home-manager.overlay
         self.overlays.kloenk
-        self.overlays.dns
         self.overlays.iso
         moodlepkgs.overlay
         kloenk-www.overlay
@@ -196,26 +195,6 @@
       overlays.kloenk = final: prev:
         (import ./pkgs/overlay.nix inputs final prev);
       overlays.default = self.overlays.kloenk;
-      overlays.dns = final: prev:
-        let
-          dns = inputs.dns.lib.${final.stdenv.targetPlatform.system}.dns;
-          lib = final.lib;
-          common = import ./services/dns/common.nix { inherit dns lib; };
-        in {
-          de_kloenk = import ./services/dns/zones/de.kloenk.nix {
-            inherit dns lib common;
-          };
-          eu_kloenk = import ./services/dns/zones/eu.kloenk.nix {
-            inherit dns lib common;
-          };
-
-          dev_sysbadge = import ./services/dns/zones/dev.sysbadge.nix {
-            inherit dns lib common;
-          };
-          de_p3tr1ch0rr = import ./services/dns/zones/de.p3tr1ch0rr.nix {
-            inherit dns lib common;
-          };
-        };
       overlays.iso = final: prev: {
         iso = (nixpkgs.lib.nixosSystem {
           system = final.stdenv.targetPlatform.system;
@@ -499,6 +478,13 @@
         });
 
       formatter = forAllSystems (system: nixpkgsFor.${system}.nixfmt);
+
+      templates = {
+        hm = {
+          path = ./templates/hm;
+          description = "Template using home manager";
+        };
+      };
 
       checks = forAllSystems (system: {
         pre-commit = inputs.pre-commit.lib.${system}.run {
