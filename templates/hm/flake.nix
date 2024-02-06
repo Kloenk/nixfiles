@@ -6,11 +6,18 @@
   inputs.sops-nix = {
     url = "github:Mic92/sops-nix";
     inputs.nixpkgs.follows = "/nixpkgs";
+    inputs.nixpkgs-stable.follows = "/nixpkgs";
+  };
+
+  inputs.home-manager = {
+    url = "github:nix-community/home-manager";
+    inputs.nixpkgs.follows = "/nixpkgs";
   };
 
   inputs.colmena = {
     url = "github:zhaofengli/colmena";
     inputs.nixpkgs.follows = "/nixpkgs";
+    inputs.stable.follows = "/nixpkgs";
   };
 
   inputs.pre-commit = {
@@ -19,7 +26,8 @@
     inputs.nixpkgs-stable.follows = "/nixpkgs";
   };
 
-  outputs = inputs@{ self, nixpkgs, sops-nix, colmena, pre-commit }:
+  outputs =
+    inputs@{ self, nixpkgs, sops-nix, home-manager, colmena, pre-commit }:
     let
       systems =
         [ "x86_64-linux" "aarch64-linux" "x86_64-darwin" "aarch64-darwin" ];
@@ -54,6 +62,7 @@
             ./profiles/base
 
             sops-nix.nixosModules.sops
+            home-manager.nixosModules.home-manager
           ];
 
           nix.channel.enable = false;
